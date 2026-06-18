@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos | La Lechería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        #sidebar { width: 250px; transition: all 0.3s ease; }
+        #sidebar.collapsed { width: 70px; }
+        #sidebar.collapsed .sidebar-text { display: none; }
+        #sidebar.collapsed .list-group-item { justify-content: center !important; padding-left: 0; padding-right: 0; }
+        #sidebar.collapsed .list-group-item i { margin-right: 0 !important; font-size: 1.2rem; }
+        .main-content { flex-grow: 1; min-width: 0; transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <header class="bg-black py-3 border-bottom border-secondary sticky-top shadow">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-dark bg-black border-0 me-3 fs-5" id="btn-toggle-sidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="panel.html" class="text-white text-decoration-none d-flex align-items-center">
+                    <img src="../assets/img/logotipo.png" width="45" class="filter-white me-3" alt="Logo">
+                    <h4 class="mb-0 fw-bold d-none d-sm-block">LA LECHERÍA <span class="badge bg-white text-black ms-2 fs-6">ADMIN</span></h4>
+                </a>
+            </div>
+            <div class="text-white d-flex align-items-center">
+                <span class="me-4 d-none d-md-block">Admin: <strong id="admin-name" class="text-warning">...</strong></span>
+                <button class="btn btn-outline-light btn-sm rounded-0 fw-bold px-4 py-2" id="btn-logout">SALIR</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="d-flex min-vh-100">
+        <aside id="sidebar" class="bg-white border-end border-dark flex-shrink-0 shadow-sm">
+            <div class="list-group list-group-flush mt-3 position-sticky" style="top: 90px;">
+                <a href="panel.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-gauge fs-5 me-3"></i> 
+                    <span class="sidebar-text">DASHBOARD</span>
+                </a>
+                <a href="pedidos.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-receipt fs-5 me-3"></i> 
+                    <span class="sidebar-text">PEDIDOS</span>
+                </a>
+                <a href="categorias.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-tags fs-5 me-3"></i> 
+                    <span class="sidebar-text">CATEGORÍAS</span>
+                </a>
+                <a href="productos.html" class="list-group-item list-group-item-action py-3 fw-bold active bg-black border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-boxes-stacked fs-5 me-3"></i> 
+                    <span class="sidebar-text">PRODUCTOS</span>
+                </a>
+                <a href="usuarios.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-users fs-5 me-3"></i> 
+                    <span class="sidebar-text">USUARIOS</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-uppercase">Gestión de Inventario</h2>
+                <button class="btn btn-cow" data-bs-toggle="modal" data-bs-target="#modalProducto">
+                    <i class="fa-solid fa-plus me-2"></i> NUEVO PRODUCTO
+                </button>
+            </div>
+
+            <div class="card border-dark rounded-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th class="ps-4">IMG</th>
+                                    <th>NOMBRE Y CATEGORÍA</th>
+                                    <th>DESCRIPCIÓN</th>
+                                    <th>PRECIO</th>
+                                    <th>STOCK</th>
+                                    <th class="text-center">ACCIONES</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-gestion-productos">
+                                <tr><td colspan="6" class="text-center py-4">Cargando productos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="modalProducto" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-0 border-dark shadow-lg">
+                <div class="modal-header bg-black text-white rounded-0">
+                    <h5 class="modal-title fw-bold">DATOS DEL PRODUCTO</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="form-producto-gestion" enctype="multipart/form-data">
+                    <div class="modal-body p-4">
+                        <input type="hidden" name="accion" id="accion_producto" value="registrar">
+                        <input type="hidden" name="id_producto" id="id_producto_input">
+                        <div class="mb-3">
+                            <label class="fw-bold small mb-1">NOMBRE</label>
+                            <input type="text" name="nombre" id="nombre_prod_input" class="form-control rounded-0 border-dark" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold small mb-1">CATEGORÍA</label>
+                            <select name="id_categoria" id="select-categoria" class="form-select rounded-0 border-dark" required>
+                                <option value="" disabled selected>Cargando categorías...</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="fw-bold small mb-1">PRECIO (S/)</label>
+                                <input type="number" step="0.1" name="precio" id="precio_prod_input" class="form-control rounded-0 border-dark" required>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="fw-bold small mb-1">STOCK</label>
+                                <input type="number" name="stock" id="stock_prod_input" class="form-control rounded-0 border-dark" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold small mb-1">DESCRIPCIÓN</label>
+                            <textarea name="descripcion" id="desc_prod_input" class="form-control rounded-0 border-dark" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold small mb-1">IMAGEN (Dejar en blanco para conservar actual)</label>
+                            <input type="file" name="imagen" id="imagen_prod_input" class="form-control rounded-0 border-dark" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-outline-dark rounded-0 fw-bold px-4" data-bs-dismiss="modal">CANCELAR</button>
+                        <button type="submit" class="btn btn-cow px-4">GUARDAR</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminName = localStorage.getItem('usuario_nombre');
+            const userRol = localStorage.getItem('usuario_rol');
+
+            if (!adminName || userRol !== 'ADMIN') {
+                window.location.href = '../auth/login.html';
+            } else {
+                document.getElementById('admin-name').textContent = adminName.toUpperCase();
+            }
+
+            document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+
+            const cargarCategoriasSelect = async () => {
+                try {
+                    const res = await fetch('../CategoriaServlet?accion=listarJSON');
+                    const categorias = await res.json();
+                    const select = document.getElementById('select-categoria');
+                    select.innerHTML = '<option value="" disabled selected>Seleccione una categoría...</option>';
+                    categorias.forEach(c => {
+                        select.innerHTML += `<option value="${c.id_categoria}">${c.nombre}</option>`;
+                    });
+                } catch (error) {
+                    console.error("Error cargando categorías para el select", error);
+                }
+            };
+
+            window.cargarProductos = async () => {
+                try {
+                    const res = await fetch('../ProductoServlet?accion=listarAdminJSON');
+                    const productos = await res.json();
+                    const tbody = document.getElementById('lista-gestion-productos');
+                    tbody.innerHTML = '';
+
+                    if(productos.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay productos en el inventario</td></tr>';
+                        return;
+                    }
+
+                    productos.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td class="ps-4">
+                                    <img src="../assets/img/productos/${p.imagen}" width="50" height="50" class="object-fit-cover border border-dark rounded-circle shadow-sm">
+                                </td>
+                                <td>
+                                    <div class="fw-bold">${p.nombre}</div>
+                                    <span class="badge bg-secondary rounded-0 small">${p.categoria}</span>
+                                </td>
+                                <td class="small text-muted" style="max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.descripcion}</td>
+                                <td class="fw-bold">S/ ${p.precio.toFixed(2)}</td>
+                                <td><span class="badge ${p.stock < 5 ? 'bg-danger' : 'bg-success'} border border-dark text-dark px-3 py-2">${p.stock}</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-dark rounded-0" onclick="prepararEdicionProducto(${p.id_producto}, ${p.id_categoria}, \`${p.nombre}\`, ${p.precio}, ${p.stock}, \`${p.descripcion}\`)"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-0 ms-1" onclick="eliminarProducto(${p.id_producto})"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } catch (error) {
+                    console.error("Error cargando productos", error);
+                }
+            };
+
+            window.prepararEdicionProducto = (id, id_cat, nombre, precio, stock, desc) => {
+                document.getElementById('id_producto_input').value = id;
+                document.getElementById('select-categoria').value = id_cat;
+                document.getElementById('nombre_prod_input').value = nombre;
+                document.getElementById('precio_prod_input').value = precio;
+                document.getElementById('stock_prod_input').value = stock;
+                document.getElementById('desc_prod_input').value = desc;
+                
+                document.getElementById('accion_producto').value = 'actualizar';
+                document.querySelector('#modalProducto .modal-title').textContent = 'EDITAR PRODUCTO';
+                document.getElementById('imagen_prod_input').removeAttribute('required');
+                
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProducto')).show();
+            };
+
+            window.eliminarProducto = async (id) => {
+                const result = await Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "El producto será eliminado del catálogo.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#000',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        const datos = new URLSearchParams();
+                        datos.append('accion', 'eliminar');
+                        datos.append('id_producto', id);
+
+                        const res = await fetch('../ProductoServlet', {
+                            method: 'POST',
+                            body: datos,
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                        });
+
+                        if(res.ok) {
+                            Swal.fire('¡Eliminado!', 'El producto ha sido eliminado.', 'success');
+                            cargarProductos();
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', 'No se pudo eliminar el producto.', 'error');
+                    }
+                }
+            };
+
+            cargarCategoriasSelect();
+            cargarProductos();
+
+            const form = document.getElementById('form-producto-gestion');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                Swal.fire({ title: 'Procesando...', didOpen: () => Swal.showLoading() });
+
+                try {
+                    const res = await fetch('../ProductoServlet', { method: 'POST', body: formData });
+                    if(res.ok) {
+                        Swal.fire('¡Éxito!', 'Operación completada', 'success');
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalProducto')).hide();
+                        form.reset();
+                        cargarProductos();
+                    } else {
+                        throw new Error();
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'No se pudo guardar el producto', 'error');
+                }
+            });
+
+            document.getElementById('modalProducto').addEventListener('hidden.bs.modal', () => {
+                document.getElementById('form-producto-gestion').reset();
+                document.getElementById('accion_producto').value = 'registrar';
+                document.getElementById('select-categoria').value = ""; 
+                document.getElementById('imagen_prod_input').setAttribute('required', 'required');
+                document.querySelector('#modalProducto .modal-title').textContent = 'DATOS DEL PRODUCTO';
+            });
+
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = '../index.html';
+            });
+        });
+    </script>
+</body>
+</html>

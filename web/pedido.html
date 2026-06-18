@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Entrega | La Lechería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <style>
+        .stepper-wrapper { display: flex; justify-content: space-between; position: relative; margin-bottom: 2.5rem; }
+        .stepper-wrapper::before { content: ""; position: absolute; top: 25px; left: 0; width: 100%; height: 3px; background: #ddd; z-index: 1; }
+        .stepper-item { position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2; flex: 1; }
+        .step-counter { position: relative; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; background: #fff; border: 3px solid #000; font-weight: bold; font-size: 1.1rem; border-radius: 50%; transition: all 0.3s ease; }
+        .step-counter i { position: absolute; font-size: 2.2rem; opacity: 0.12; color: #000; z-index: 1; }
+        .step-counter span { z-index: 2; position: relative; }
+        .step-name { margin-top: 0.5rem; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; }
+        .stepper-item.completed .step-counter { background: #198754; color: #fff; border-color: #198754; }
+        .stepper-item.completed .step-counter i { color: #fff; opacity: 0.2; }
+        .stepper-item.completed .step-name { color: #198754; }
+        .stepper-item.active .step-counter { background: #000; color: #fff; border-color: #000; }
+        .stepper-item.active .step-counter i { color: #fff; opacity: 0.2; }
+        .stepper-item.active .step-name { color: #000; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container my-5">
+        <div class="stepper-wrapper mb-5" style="max-width: 1000px; margin: 0 auto;">
+            <div class="stepper-item completed">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>1</span></div>
+                <div class="step-name">Carrito</div>
+            </div>
+            <div class="stepper-item active">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>2</span></div>
+                <div class="step-name">Entrega</div>
+            </div>
+            <div class="stepper-item">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>3</span></div>
+                <div class="step-name">Pago</div>
+            </div>
+        </div>
+        <div class="row g-4 mt-2">
+            <div class="col-lg-7">
+                <div class="card shadow rounded-0 border-dark border-2 h-100">
+                    <div class="card-header bg-black text-white py-3">
+                        <h4 class="mb-0 fw-bold"><i class="fa-solid fa-truck-ramp-box me-2"></i> CONFIGURACIÓN DE ENTREGA</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">1. Selecciona el método de entrega:</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="metodoEntrega" id="radio-recojo" value="RECOJO" checked onchange="conmutarFormularioEnvio()">
+                                <label class="btn btn-outline-dark w-100 p-3 rounded-0 border-2 d-flex align-items-center justify-content-center fs-5 fw-bold" for="radio-recojo">
+                                    <i class="fa-solid fa-store text-success me-2"></i> Recojo en Local
+                                </label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="metodoEntrega" id="radio-delivery" value="DELIVERY" onchange="conmutarFormularioEnvio()">
+                                <label class="btn btn-outline-dark w-100 p-3 rounded-0 border-2 d-flex align-items-center justify-content-center fs-5 fw-bold" for="radio-delivery">
+                                    <i class="fa-solid fa-motorcycle text-primary me-2"></i> Envío a Domicilio
+                                </label>
+                            </div>
+                        </div>
+                        <div id="seccion-recojo" class="mb-4">
+                            <h5 class="fw-bold mb-3">2. Selecciona la sucursal de recojo:</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <input type="radio" class="btn-check" name="sedeSeleccionada" id="sede-leguia" value="Sede Leguía - Av. Leguía 1420" checked>
+                                    <label class="btn btn-outline-dark w-100 text-start p-3 rounded-0 border-2" for="sede-leguia">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="fw-bold mb-1"><i class="fa-solid fa-building me-2 text-success"></i> SEDE LEGUÍA</h6>
+                                                <small class="text-muted">Av. Leguía N° 1420 (Frente al Parque Industrial)</small>
+                                            </div>
+                                            <i class="fa-solid fa-circle-check fs-4"></i>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="col-12">
+                                    <input type="radio" class="btn-check" name="sedeSeleccionada" id="sede-ejercito" value="Sede Ejército - Av. Ejército 123">
+                                    <label class="btn btn-outline-dark w-100 text-start p-3 rounded-0 border-2" for="sede-ejercito">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="fw-bold mb-1"><i class="fa-solid fa-building me-2 text-success"></i> SEDE EJÉRCITO</h6>
+                                                <small class="text-muted">Av. Ejército N° 123 (Cerca al Óvalo Pocollay)</small>
+                                            </div>
+                                            <i class="fa-solid fa-circle-check fs-4"></i>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="seccion-delivery" class="d-none">
+                            <h5 class="fw-bold mb-3">2. ¿Quién recibe el pedido?</h5>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="tipoDestinatario" id="dest-titular" value="TITULAR" checked onchange="conmutarDestinatario()">
+                                    <label class="btn btn-outline-secondary w-100 rounded-0 fw-bold" for="dest-titular">A mi nombre</label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="tipoDestinatario" id="dest-externo" value="EXTERNO" onchange="conmutarDestinatario()">
+                                    <label class="btn btn-outline-secondary w-100 rounded-0 fw-bold" for="dest-externo">Para otra persona</label>
+                                </div>
+                            </div>
+                            <div id="campo-nombre-externo" class="col-12 mb-3 d-none">
+                                <label class="form-label fw-bold">Nombre de la Persona que Recibe</label>
+                                <input type="text" id="pedido-destinatario" class="form-control rounded-0 border-dark" placeholder="Ej: Juan Pérez">
+                            </div>
+                            <h5 class="fw-bold mb-3">3. Datos de Envío (Delivery):</h5>
+                            <div class="row g-3 bg-white p-3 border border-dark border-2 mb-4">
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Dirección Exacta de Entrega</label>
+                                    <input type="text" id="pedido-direccion" class="form-control rounded-0 border-dark" placeholder="Ej: Av. Bolognesi 123 - Tacna">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Referencia del Domicilio</label>
+                                    <input type="text" id="pedido-referencia" class="form-control rounded-0 border-dark" placeholder="Ej: Al costado del parque...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Teléfono de Contacto</label>
+                                    <input type="text" id="pedido-telefono" class="form-control rounded-0 border-dark" placeholder="Ej: 952XXXXXX">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between pt-3">
+                            <a href="carrito.html" class="btn btn-outline-dark rounded-0 fw-bold py-2 px-4"><i class="fa-solid fa-arrow-left me-2"></i> VOLVER ATRÁS</a>
+                            <button class="btn btn-dark rounded-0 fw-bold py-2 px-5 fs-5" onclick="confirmarOrdenFinal()">CONTINUAR AL PAGO <i class="fa-solid fa-arrow-right ms-2"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card shadow rounded-0 border-dark border-2 bg-white">
+                    <div class="card-header bg-black text-white py-3 text-center">
+                        <h5 class="mb-0 fw-bold text-uppercase tracking-wider"><i class="fa-solid fa-receipt me-2"></i> RESUMEN</h5>
+                    </div>
+                    <div class="card-body p-4" style="font-family: 'Courier New', Courier, monospace;">
+                        <div id="boleta-items-container"></div>
+                        <div class="border-top border-dark border-dashed my-2"></div>
+                        <div class="d-flex justify-content-between fw-bold mb-1">
+                            <span>SUBTOTAL:</span>
+                            <span id="boleta-subtotal">S/ 0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-danger fw-bold mb-1">
+                            <span>DESCUENTO:</span>
+                            <span id="boleta-descuento">-S/ 0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-primary fw-bold mb-1 d-none" id="boleta-delivery-row">
+                            <span>COSTO DELIVERY:</span>
+                            <span>S/ 15.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold fs-4 text-success border-top border-dark pt-2">
+                            <span>TOTAL:</span>
+                            <span>S/ <span id="boleta-total">0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            pintarBoletaResumen();
+        });
+        function pintarBoletaResumen() {
+            const container = document.getElementById('boleta-items-container');
+            const localCarrito = JSON.parse(localStorage.getItem('lecheria_carrito')) || [];
+            if (!container) return;
+            container.innerHTML = '';
+            let sub = 0;
+            localCarrito.forEach(item => {
+                sub += item.precio * item.cantidad;
+                container.innerHTML += `<div class="d-flex justify-content-between mb-2 small"><span>${item.cantidad} x ${item.nombre.toUpperCase()}</span><span>S/ ${(item.precio * item.cantidad).toFixed(2)}</span></div>`;
+            });
+            const descuento = parseFloat(localStorage.getItem('descuento_aplicado')) || 0;
+            const esDelivery = document.getElementById('radio-delivery').checked;
+            let delivery = esDelivery ? 15.00 : 0.00;
+            let total = (sub - descuento) + delivery;
+            document.getElementById('boleta-delivery-row').classList.toggle('d-none', !esDelivery);
+            document.getElementById('boleta-subtotal').textContent = `S/ ${sub.toFixed(2)}`;
+            document.getElementById('boleta-descuento').textContent = `-S/ ${descuento.toFixed(2)}`;
+            document.getElementById('boleta-total').textContent = total.toFixed(2);
+            localStorage.setItem('total_final', total);
+            localStorage.setItem('tmp_delivery_costo', delivery);
+        }
+        function conmutarFormularioEnvio() {
+            const esDelivery = document.getElementById('radio-delivery').checked;
+            document.getElementById('seccion-delivery').classList.toggle('d-none', !esDelivery);
+            document.getElementById('seccion-recojo').classList.toggle('d-none', esDelivery);
+            pintarBoletaResumen();
+        }
+        function conmutarDestinatario() {
+            document.getElementById('campo-nombre-externo').classList.toggle('d-none', !document.getElementById('dest-externo').checked);
+        }
+        function confirmarOrdenFinal() {
+            const tipo = document.querySelector('input[name="metodoEntrega"]:checked').value;
+            localStorage.setItem('tmp_tipo_entrega', tipo);
+            if (tipo === 'DELIVERY') {
+                const dir = document.getElementById('pedido-direccion').value.trim();
+                const tel = document.getElementById('pedido-telefono').value.trim();
+                if (!dir || !tel) { Swal.fire('Error', 'Completa dirección y teléfono', 'warning'); return; }
+                localStorage.setItem('tmp_direccion', dir);
+                localStorage.setItem('tmp_referencia', document.getElementById('pedido-referencia').value.trim());
+                localStorage.setItem('tmp_telefono', tel);
+                localStorage.setItem('tmp_destinatario', document.getElementById('dest-externo').checked ? document.getElementById('pedido-destinatario').value.trim() : localStorage.getItem('usuario_nombre'));
+            } else {
+                localStorage.setItem('tmp_direccion', document.querySelector('input[name="sedeSeleccionada"]:checked').value);
+                localStorage.setItem('tmp_referencia', 'Recojo en local');
+                localStorage.setItem('tmp_telefono', localStorage.getItem('usuario_telefono') || 'N/A');
+                localStorage.setItem('tmp_destinatario', localStorage.getItem('usuario_nombre'));
+            }
+            window.location.href = 'pago.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasarela de Pago | La Lechería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <style>
+        .stepper-wrapper { display: flex; justify-content: space-between; position: relative; margin-bottom: 2.5rem; }
+        .stepper-wrapper::before { content: ""; position: absolute; top: 25px; left: 0; width: 100%; height: 3px; background: #ddd; z-index: 1; }
+        .stepper-item { position: relative; display: flex; flex-direction: column; align-items: center; z-index: 2; flex: 1; }
+        .step-counter { position: relative; width: 55px; height: 55px; display: flex; justify-content: center; align-items: center; background: #fff; border: 3px solid #000; font-weight: bold; font-size: 1.1rem; border-radius: 50%; transition: all 0.3s ease; }
+        .step-counter i { position: absolute; font-size: 2.2rem; opacity: 0.12; color: #000; z-index: 1; }
+        .step-counter span { z-index: 2; position: relative; }
+        .step-name { margin-top: 0.5rem; font-size: 0.85rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; }
+        .stepper-item.completed .step-counter { background: #198754; color: #fff; border-color: #198754; }
+        .stepper-item.completed .step-counter i { color: #fff; opacity: 0.2; }
+        .stepper-item.completed .step-name { color: #198754; }
+        .stepper-item.active .step-counter { background: #000; color: #fff; border-color: #000; }
+        .stepper-item.active .step-counter i { color: #fff; opacity: 0.2; }
+        .stepper-item.active .step-name { color: #000; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <div class="container my-5" style="max-width: 1100px;">
+        
+        <div class="stepper-wrapper mb-5" style="max-width: 1000px; margin: 0 auto;">
+            <div class="stepper-item completed">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>1</span></div>
+                <div class="step-name">Carrito</div>
+            </div>
+            <div class="stepper-item completed">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>2</span></div>
+                <div class="step-name">Entrega</div>
+            </div>
+            <div class="stepper-item active">
+                <div class="step-counter"><i class="fa-solid fa-cow"></i><span>3</span></div>
+                <div class="step-name">Pago</div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-2">
+            <div class="col-lg-7">
+                
+                <div id="pantalla-opcion-recojo" class="card shadow rounded-0 border-dark border-2 mb-4 d-none">
+                    <div class="card-header bg-black text-white py-3">
+                        <h5 class="mb-0 fw-bold text-uppercase"><i class="fa-solid fa-credit-card me-2"></i> ¿Cómo deseas realizar tu pago?</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-dark w-100 p-4 rounded-0 border-2 fs-5 fw-bold text-center" onclick="seleccionarFlujoPago('TIENDA')">
+                                    <i class="fa-solid fa-money-bill-wave text-success fs-1 d-block mb-2"></i>
+                                    PAGAR EN SUCURSAL
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-outline-dark w-100 p-4 rounded-0 border-2 fs-5 fw-bold text-center" onclick="seleccionarFlujoPago('LINEA')">
+                                    <i class="fa-solid fa-qrcode text-primary fs-1 d-block mb-2"></i>
+                                    PAGAR AHORA EN LÍNEA
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-top">
+                            <a href="pedido.html" class="btn btn-outline-dark rounded-0 fw-bold py-2 px-4"><i class="fa-solid fa-arrow-left me-2"></i> VOLVER A ENTREGA</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pantalla-pasarela" class="card shadow rounded-0 border-dark border-2">
+                    <div class="card-header bg-black text-white py-3 d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 fw-bold"><i class="fa-solid fa-wallet me-2"></i> PASARELA DE PAGO</h4>
+                        <button id="btn-regresar-opciones" class="btn btn-sm btn-light rounded-0 fw-bold d-none" onclick="regresarAOpcionesRecojo()"><i class="fa-solid fa-rotate-left me-1"></i> CAMBIAR MÉTODO</button>
+                    </div>
+                    <div class="card-body p-4">
+                        <ul class="nav nav-tabs mb-4" id="pagoTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-bold border-dark text-dark rounded-0" id="yape-tab" data-bs-toggle="tab" data-bs-target="#tab-yape" type="button" role="tab">
+                                    <i class="fa-solid fa-qrcode text-purple me-1"></i> YAPE
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold border-dark text-dark rounded-0" id="visa-tab" data-bs-toggle="tab" data-bs-target="#tab-visa" type="button" role="tab">
+                                    <i class="fa-brands fa-cc-visa text-primary me-1"></i> TARJETA
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-bold border-dark text-dark rounded-0" id="paypal-tab" data-bs-toggle="tab" data-bs-target="#tab-paypal" type="button" role="tab">
+                                    <i class="fa-brands fa-paypal text-info me-1"></i> PAYPAL
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content mb-4" id="pagoTabsContent">
+                            <div class="tab-pane fade show active" id="tab-yape" role="tabpanel">
+                                <div class="text-center p-3 bg-white border border-dark border-2 mb-3">
+                                    <h6 class="fw-bold mb-2">ESCANEA EL QR PARA PAGAR</h6>
+                                    <img src="assets/img/qr/qr.png" alt="QR Yape" class="img-fluid border p-2 mb-3" style="max-width: 200px;">
+                                    <p class="small text-muted mb-3">Monto exacto a yapear: <span class="fw-bold text-success txt-total-boucher">S/ 0.00</span></p>
+                                    
+                                    <div class="text-start" style="max-width: 400px; margin: 0 auto;">
+                                        <label class="form-label fw-bold small"><i class="fa-cloud-arrow-up me-1"></i> Sube tu captura de transferencia:</label>
+                                        <input type="file" id="yape-comprobante" class="form-control rounded-0 border-dark" accept="image/*">
+                                    </div>
+                                </div>
+                                <button class="btn btn-dark w-100 py-3 fw-bold fs-5 rounded-0" onclick="procesarPagoFinal('YAPE')">COMPLETAR PAGO POR YAPE</button>
+                            </div>
+
+                            <div class="tab-pane fade" id="tab-visa" role="tabpanel">
+                                <div class="bg-white p-3 border border-dark border-2 mb-3">
+                                    <div class="row g-3">
+                                        <div class="col-12">
+                                            <label class="form-label fw-bold small">Número de Tarjeta</label>
+                                            <input type="text" class="form-control rounded-0 border-dark" placeholder="0000 0000 0000 0000">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small">Vencimiento</label>
+                                            <input type="text" class="form-control rounded-0 border-dark" placeholder="MM/AA">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold small">CVV</label>
+                                            <input type="password" class="form-control rounded-0 border-dark" placeholder="123">
+                                        </div>
+                                    </div>
+                                </div>
+                                <button class="btn btn-dark w-100 py-3 fw-bold fs-5 rounded-0" onclick="procesarPagoFinal('TARJETA')">PAGAR CON TARJETA</button>
+                            </div>
+
+                            <div class="tab-pane fade" id="tab-paypal" role="tabpanel">
+                                <div class="text-center p-4 bg-white border border-dark border-2 mb-3">
+                                    <i class="fa-brands fa-paypal text-info display-1 mb-3"></i>
+                                    <p>Serás redirigido a la plataforma externa de PayPal para autorizar la transacción de forma segura.</p>
+                                </div>
+                                <button class="btn btn-dark w-100 py-3 fw-bold fs-5 rounded-0" onclick="procesarPagoFinal('PAYPAL')">PAGAR CON PAYPAL</button>
+                            </div>
+                        </div>
+
+                        <div id="wrapper-back-delivery" class="pt-2 border-top">
+                            <a href="pedido.html" class="btn btn-outline-dark rounded-0 fw-bold py-2 px-4"><i class="fa-solid fa-arrow-left me-2"></i> VOLVER A ENTREGA</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card shadow rounded-0 border-dark border-2 bg-white">
+                    <div class="card-header bg-black text-white py-3 text-center">
+                        <h5 class="mb-0 fw-bold text-uppercase tracking-wider"><i class="fa-solid fa-receipt me-2"></i> RESUMEN DE COMPRA</h5>
+                    </div>
+                    <div class="card-body p-4" style="font-family: 'Courier New', Courier, monospace;">
+                        <div class="text-center mb-3">
+                            <h5 class="fw-bold mb-0">LA LECHERÍA TACNA</h5>
+                            <small class="text-muted">RUC: 20605128514</small><br>
+                            <small class="text-muted">Del campo a tu mesa</small>
+                            <div class="border-top border-dark border-dashed my-2"></div>
+                        </div>
+                        <div id="boleta-items-container"></div>
+                        <div class="border-top border-dark border-dashed my-2"></div>
+                        <div class="d-flex justify-content-between fw-bold mb-1">
+                            <span>SUBTOTAL:</span>
+                            <span id="boleta-subtotal">S/ 0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-danger fw-bold mb-1">
+                            <span>DESCUENTO:</span>
+                            <span id="boleta-descuento">-S/ 0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-primary fw-bold mb-1 d-none" id="boleta-delivery-row">
+                            <span>COSTO DELIVERY:</span>
+                            <span>S/ 15.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold fs-4 text-success border-top border-dark pt-2">
+                            <span>TOTAL A PAGAR:</span>
+                            <span>S/ <span id="boleta-total">0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tipoEntrega = localStorage.getItem('tmp_tipo_entrega');
+        pintarBoletaResumen();
+        if (tipoEntrega === 'RECOJO') {
+            document.getElementById('pantalla-opcion-recojo').classList.remove('d-none');
+            document.getElementById('pantalla-pasarela').classList.add('d-none');
+        } else {
+            document.getElementById('pantalla-pasarela').classList.remove('d-none');
+            document.getElementById('btn-regresar-opciones').classList.add('d-none');
+        }
+    });
+
+    function pintarBoletaResumen() {
+        const container = document.getElementById('boleta-items-container');
+        const localCarrito = JSON.parse(localStorage.getItem('lecheria_carrito')) || [];
+        if (!container) return;
+        container.innerHTML = '';
+        let sub = 0;
+        localCarrito.forEach(item => {
+            sub += item.precio * item.cantidad;
+            container.innerHTML += `<div class="d-flex justify-content-between mb-2 small"><span>${item.cantidad} x ${item.nombre.toUpperCase()}</span><span>S/ ${(item.precio * item.cantidad).toFixed(2)}</span></div>`;
+        });
+        const descuento = parseFloat(localStorage.getItem('descuento_aplicado')) || 0;
+        const delivery = localStorage.getItem('tmp_tipo_entrega') === 'DELIVERY' ? 15.00 : 0.00;
+        let total = (sub - descuento) + delivery;
+        if (delivery > 0) document.getElementById('boleta-delivery-row').classList.remove('d-none');
+        document.getElementById('boleta-subtotal').textContent = `S/ ${sub.toFixed(2)}`;
+        document.getElementById('boleta-descuento').textContent = `-S/ ${descuento.toFixed(2)}`;
+        document.getElementById('boleta-total').textContent = total.toFixed(2);
+        localStorage.setItem('total_final', total);
+        localStorage.setItem('tmp_delivery_costo', delivery);
+        document.querySelectorAll('.txt-total-boucher').forEach(t => t.textContent = `S/ ${total.toFixed(2)}`);
+    }
+
+    function seleccionarFlujoPago(opcion) {
+        localStorage.setItem('tmp_metodo_pago', opcion);
+        localStorage.setItem('tmp_estado_inicial', 'PENDIENTE_PAGO');
+        if (opcion === 'TIENDA') {
+            procesarPago();
+        } else {
+            document.getElementById('pantalla-opcion-recojo').classList.add('d-none');
+            document.getElementById('pantalla-pasarela').classList.remove('d-none');
+            document.getElementById('btn-regresar-opciones').classList.remove('d-none');
+        }
+    }
+
+    function procesarPagoFinal(metodo) {
+        localStorage.setItem('tmp_metodo_pago', metodo);
+        if (metodo === 'YAPE') {
+            const fileInput = document.getElementById('yape-comprobante');
+            if (!fileInput.files[0]) {
+                Swal.fire('Error', 'Sube tu comprobante', 'warning');
+                return;
+            }
+            localStorage.setItem('tmp_estado_inicial', 'EN_VERIFICACION');
+        } else {
+            localStorage.setItem('tmp_estado_inicial', 'PREPARANDO');
+        }
+        procesarPago();
+    }
+
+    function regresarAOpcionesRecojo() {
+        document.getElementById('pantalla-opcion-recojo').classList.remove('d-none');
+        document.getElementById('pantalla-pasarela').classList.add('d-none');
+        document.getElementById('btn-regresar-opciones').classList.add('d-none');
+    }
+    </script>
+</body>
+</html>

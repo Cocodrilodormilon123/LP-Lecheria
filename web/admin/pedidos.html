@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pedidos | Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <style>
+        #sidebar { width: 250px; transition: all 0.3s ease; }
+        #sidebar.collapsed { width: 70px; }
+        #sidebar.collapsed .sidebar-text { display: none; }
+        #sidebar.collapsed .list-group-item { justify-content: center !important; padding-left: 0; padding-right: 0; }
+        #sidebar.collapsed .list-group-item i { margin-right: 0 !important; font-size: 1.2rem; }
+        .main-content { flex-grow: 1; min-width: 0; transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-light">
+
+    <header class="bg-black py-3 border-bottom border-secondary sticky-top shadow">
+        <div class="container-fluid d-flex justify-content-between align-items-center px-4">
+            <div class="d-flex align-items-center">
+                <button class="btn btn-dark bg-black border-0 me-3 fs-5" id="btn-toggle-sidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <a href="panel.html" class="text-white text-decoration-none d-flex align-items-center">
+                    <img src="../assets/img/logotipo.png" width="45" class="filter-white me-3" alt="Logo">
+                    <h4 class="mb-0 fw-bold d-none d-sm-block">LA LECHERÍA <span class="badge bg-white text-black ms-2 fs-6">ADMIN</span></h4>
+                </a>
+            </div>
+            <div class="text-white d-flex align-items-center">
+                <span class="me-4 d-none d-md-block">Admin: <strong id="admin-name" class="text-warning">...</strong></span>
+                <button class="btn btn-outline-light btn-sm rounded-0 fw-bold px-4 py-2" id="btn-logout">SALIR</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="d-flex min-vh-100">
+        <aside id="sidebar" class="bg-white border-end border-dark flex-shrink-0 shadow-sm">
+            <div class="list-group list-group-flush mt-3 position-sticky" style="top: 90px;">
+                <a href="panel.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-gauge fs-5 me-3"></i> 
+                    <span class="sidebar-text">DASHBOARD</span>
+                </a>
+                <a href="pedidos.html" class="list-group-item list-group-item-action py-3 fw-bold active bg-black border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-receipt fs-5 me-3"></i> 
+                    <span class="sidebar-text">PEDIDOS</span>
+                </a>
+                <a href="categorias.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-tags fs-5 me-3"></i> 
+                    <span class="sidebar-text">CATEGORÍAS</span>
+                </a>
+                <a href="productos.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-boxes-stacked fs-5 me-3"></i> 
+                    <span class="sidebar-text">PRODUCTOS</span>
+                </a>
+                <a href="usuarios.html" class="list-group-item list-group-item-action py-3 fw-bold border-dark d-flex align-items-center">
+                    <i class="fa-solid fa-users fs-5 me-3"></i> 
+                    <span class="sidebar-text">USUARIOS</span>
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">GESTIÓN DE PEDIDOS</h2>
+                <button class="btn btn-dark rounded-0 fw-bold" onclick="cargarPedidos()"><i class="fa-solid fa-rotate-right me-2"></i> ACTUALIZAR</button>
+            </div>
+
+            <div class="card border-dark rounded-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 text-center">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>FECHA</th>
+                                    <th>CLIENTE</th>
+                                    <th>ENTREGA</th>
+                                    <th>TOTAL</th>
+                                    <th>ESTADO</th>
+                                    <th>ACCIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-pedidos-body">
+                                <tr>
+                                    <td colspan="7" class="py-4 text-muted">Cargando pedidos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal fade" id="modalDetallePedido" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-0 border-dark border-2">
+                <div class="modal-header bg-black text-white rounded-0">
+                    <h5 class="modal-title fw-bold">DETALLE DEL PEDIDO #<span id="mod-id-pedido"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 row">
+                    <div class="col-md-6 border-end">
+                        <h6 class="fw-bold border-bottom pb-2">Datos del Cliente</h6>
+                        <p class="mb-1 small"><strong>Nombre:</strong> <span id="mod-cliente"></span></p>
+                        <p class="mb-1 small"><strong>Teléfono:</strong> <span id="mod-telefono"></span></p>
+                        <p class="mb-3 small"><strong>Dirección:</strong> <span id="mod-direccion"></span></p>
+                        
+                        <h6 class="fw-bold border-bottom pb-2">Productos</h6>
+                        <ul id="mod-lista-productos" class="list-unstyled small mb-0">
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6 text-center">
+                        <h6 class="fw-bold border-bottom pb-2">Comprobante de Pago</h6>
+                        <p class="mb-1 small text-muted" id="mod-metodo-pago"></p>
+                        
+                        <img id="mod-img-voucher" src="" class="img-fluid border border-dark mb-3 d-none" style="max-height: 250px; object-fit: contain;" alt="Voucher">
+                        <p id="mod-sin-voucher" class="text-muted small mt-3 d-none">Pago presencial / Sin comprobante adjunto.</p>
+                        
+                        <div class="d-flex flex-column gap-2 mt-3">
+                            <button class="btn btn-success fw-bold rounded-0" onclick="cambiarEstado('PREPARANDO')"><i class="fa-solid fa-check me-2"></i> PAGO VÁLIDO / PREPARAR</button>
+                            <button class="btn btn-danger fw-bold rounded-0" onclick="cambiarEstado('CANCELADO')"><i class="fa-solid fa-xmark me-2"></i> RECHAZAR PEDIDO</button>
+                            <button class="btn btn-primary fw-bold rounded-0" onclick="cambiarEstado('ENTREGADO')"><i class="fa-solid fa-truck-fast me-2"></i> MARCAR ENTREGADO</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let pedidosGlobales = [];
+        let pedidoActualId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminName = localStorage.getItem('usuario_nombre');
+            const userRol = localStorage.getItem('usuario_rol');
+
+            if (!adminName || userRol !== 'ADMIN') {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+            
+            document.getElementById('admin-name').textContent = adminName.toUpperCase();
+
+            document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
+
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = '../index.html';
+            });
+
+            cargarPedidos();
+        });
+
+        async function cargarPedidos() {
+            try {
+                const response = await fetch('../PedidoServlet');
+                pedidosGlobales = await response.json();
+                renderizarTabla();
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tabla-pedidos-body').innerHTML = `<tr><td colspan="7" class="text-danger py-4">Error al conectar con el servidor</td></tr>`;
+            }
+        }
+
+        function renderizarTabla() {
+            const tbody = document.getElementById('tabla-pedidos-body');
+            tbody.innerHTML = '';
+            
+            if (pedidosGlobales.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-muted py-4">No hay pedidos registrados.</td></tr>`;
+                return;
+            }
+
+            pedidosGlobales.forEach(p => {
+                let badgeClass = 'bg-secondary';
+                if (p.estado === 'PENDIENTE_PAGO' || p.estado === 'EN_VERIFICACION') badgeClass = 'bg-warning text-dark';
+                if (p.estado === 'PREPARANDO' || p.estado === 'EN_CAMINO' || p.estado === 'LISTO_RECOJO') badgeClass = 'bg-primary';
+                if (p.estado === 'ENTREGADO') badgeClass = 'bg-success';
+                if (p.estado === 'CANCELADO') badgeClass = 'bg-danger';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="fw-bold">#${p.id_pedido}</td>
+                    <td class="small">${p.fecha.substring(0, 16)}</td>
+                    <td class="text-start">${p.cliente}</td>
+                    <td><span class="badge border border-dark text-dark ${p.entrega === 'RECOJO' ? 'bg-light' : 'bg-info text-white'}">${p.entrega}</span></td>
+                    <td class="fw-bold text-success">S/ ${p.total.toFixed(2)}</td>
+                    <td><span class="badge ${badgeClass}">${p.estado.replace(/_/g, ' ')}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-dark rounded-0 fw-bold" onclick="abrirModalDetalle(${p.id_pedido})">VER DETALLE</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function abrirModalDetalle(id) {
+            pedidoActualId = id;
+            const p = pedidosGlobales.find(x => x.id_pedido === id);
+            if (!p) return;
+
+            document.getElementById('mod-id-pedido').textContent = p.id_pedido;
+            document.getElementById('mod-cliente').textContent = p.cliente;
+            document.getElementById('mod-telefono').textContent = p.telefono;
+            document.getElementById('mod-direccion').textContent = p.direccion;
+            document.getElementById('mod-metodo-pago').textContent = `Método: ${p.metodo_pago}`;
+
+            const listaProd = document.getElementById('mod-lista-productos');
+            listaProd.innerHTML = '';
+            p.detalles.forEach(d => {
+                listaProd.innerHTML += `<li>${d.cantidad}x ${d.producto} <span class="float-end text-success fw-bold">S/ ${d.subtotal.toFixed(2)}</span></li>`;
+            });
+
+            const imgVoucher = document.getElementById('mod-img-voucher');
+            const txtSinVoucher = document.getElementById('mod-sin-voucher');
+            
+            if (p.metodo_pago === 'YAPE' && p.comprobante && p.comprobante !== 'null' && p.comprobante !== '') {
+                imgVoucher.src = `../assets/img/comprobantes/${p.comprobante}`;
+                imgVoucher.classList.remove('d-none');
+                txtSinVoucher.classList.add('d-none');
+            } else {
+                imgVoucher.classList.add('d-none');
+                txtSinVoucher.classList.remove('d-none');
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('modalDetallePedido'));
+            modal.show();
+        }
+
+        async function cambiarEstado(nuevoEstado) {
+            if (!pedidoActualId) return;
+            
+            const formData = new URLSearchParams();
+            formData.append('action', 'cambiar_estado');
+            formData.append('id_pedido', pedidoActualId);
+            formData.append('nuevo_estado', nuevoEstado);
+
+            try {
+                const response = await fetch('../PedidoServlet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    const modalElement = document.getElementById('modalDetallePedido');
+                    const modalInstance = bootstrap.Modal.getInstance(modalElement);
+                    modalInstance.hide();
+                    cargarPedidos();
+                } else {
+                    alert("Error al actualizar el estado");
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

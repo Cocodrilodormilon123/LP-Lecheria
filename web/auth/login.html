@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar | La Lechería</title>
+    <link rel="icon" type="image/png" href="../assets/img/favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+</head>
+<body class="bg-light">
+    <div class="container d-flex align-items-center justify-content-center min-vh-100">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <img src="../assets/img/logotipo.png" alt="Logo" width="80" class="mb-3">
+                        <h2 class="fw-bold">LA LECHERÍA</h2>
+                        <p class="text-muted">Inicia sesión en tu cuenta de cliente</p>
+                    </div>
+                    <form id="form-login">
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Correo Electrónico</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-dark rounded-0"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="correo" placeholder="ejemplo@correo.com" required>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-dark rounded-0"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" class="form-control" id="password" placeholder="********" required>
+                            </div>
+                        </div>
+                        <div class="mb-4 d-flex justify-content-between">
+                            <div class="form-check">
+                                <input class="form-check-input border-dark" type="checkbox" id="remember">
+                                <label class="form-check-label small" for="remember">Recordarme</label>
+                            </div>
+                            <a href="#" class="text-muted small">¿Olvidaste tu clave?</a>
+                        </div>
+                        <button type="submit" class="btn btn-cow w-100 py-3 mb-4 fs-5">INGRESAR</button>
+                        <div class="text-center">
+                            <span class="text-muted">¿Aún no eres cliente?</span><br>
+                            <a href="registro.html" class="text-black fw-bold text-decoration-none fs-5">Regístrate aquí</a>
+                        </div>
+                        <div class="text-center mt-5">
+                            <a href="../index.html" class="text-muted text-decoration-none small"><i class="fa-solid fa-house"></i> Volver a la página principal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../assets/js/auth.js"></script>
+</body>
+</html>
