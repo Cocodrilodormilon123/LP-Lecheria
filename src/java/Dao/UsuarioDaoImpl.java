@@ -51,11 +51,7 @@ public class UsuarioDaoImpl implements IUsuario {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (rs != null) rs.close();
-                if (st != null) st.close();
-            } catch (SQLException e) {
-            }
+            try { if (rs != null) rs.close(); if (st != null) st.close(); } catch (SQLException e) {}
         }
         return usuarioLogueado;
     }
@@ -122,5 +118,49 @@ public class UsuarioDaoImpl implements IUsuario {
         } catch(Exception e) { e.printStackTrace(); }
         json.append("]");
         return json.toString();
+    }
+
+    @Override
+    public Persona obtenerPerfil(int idPersona) {
+        Persona p = null;
+        String sql = "SELECT * FROM persona WHERE id_persona = ?";
+        try {
+            cn = ConexionSingleton.getConnection();
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, idPersona);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                p = new Persona();
+                p.setId_persona(rs.getInt("id_persona"));
+                p.setNombre(rs.getString("nombre"));
+                p.setApellido(rs.getString("apellido"));
+                p.setDni(rs.getString("dni"));
+                p.setEmail(rs.getString("email"));
+                p.setTelefono(rs.getString("telefono"));
+                p.setDireccion(rs.getString("direccion"));
+            }
+            rs.close(); st.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
+    @Override
+    public boolean actualizarPerfil(Persona p) {
+        boolean exito = false;
+        String sql = "UPDATE persona SET telefono = ?, direccion = ? WHERE id_persona = ?";
+        try {
+            cn = ConexionSingleton.getConnection();
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, p.getTelefono());
+            st.setString(2, p.getDireccion());
+            st.setInt(3, p.getId_persona());
+            if(st.executeUpdate() > 0) exito = true;
+            st.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return exito;
     }
 }

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil | La Lechería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom border-dark border-2 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <img src="../assets/img/logotipo.png" alt="Logo" width="55" class="me-2">
+                <span class="fw-bold fs-2 tracking-tighter text-black">LA LECHERÍA</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link fw-bold text-black px-3" href="../index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-black px-3" href="../catalogo.html">CATÁLOGO</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-cow dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-user me-2"></i> <span id="display-user-name">CLIENTE</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end rounded-0 border-2 border-dark shadow">
+                            <li><a class="dropdown-item py-2 fw-bold active bg-black text-white" href="perfil.html">MI PERFIL</a></li>
+                            <li><a class="dropdown-item py-2 fw-bold" href="compras.html">MIS COMPRAS</a></li>
+                            <li><hr class="dropdown-divider border-dark"></li>
+                            <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" id="logout-trigger">CERRAR SESIÓN</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5" style="max-width: 700px;">
+        <div class="card border-dark border-2 rounded-0 shadow-sm">
+            <div class="card-header bg-black text-white py-3">
+                <h4 class="mb-0 fw-bold"><i class="fa-solid fa-address-card me-2"></i> MIS DATOS PERSONALES</h4>
+            </div>
+            <div class="card-body p-5">
+                <form id="form-perfil">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1">NOMBRES</label>
+                            <input type="text" id="perfil-nombre" class="form-control rounded-0 border-dark bg-light" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1">APELLIDOS</label>
+                            <input type="text" id="perfil-apellido" class="form-control rounded-0 border-dark bg-light" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1">DNI</label>
+                            <input type="text" id="perfil-dni" class="form-control rounded-0 border-dark bg-light" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1">CORREO ELECTRÓNICO</label>
+                            <input type="email" id="perfil-email" class="form-control rounded-0 border-dark bg-light" readonly>
+                        </div>
+                        <div class="col-md-12">
+                            <hr class="border-secondary border-dashed my-2">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1 text-primary">TELÉFONO DE CONTACTO</label>
+                            <input type="text" id="perfil-telefono" class="form-control rounded-0 border-primary" placeholder="Ej: 987654321">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fw-bold small mb-1 text-primary">DIRECCIÓN PREDETERMINADA</label>
+                            <input type="text" id="perfil-direccion" class="form-control rounded-0 border-primary" placeholder="Ej: Av. San Martín 123">
+                        </div>
+                        <div class="col-12 mt-4 text-end">
+                            <button type="button" class="btn btn-cow px-5 fw-bold" onclick="guardarCambiosPerfil()">GUARDAR CAMBIOS</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('usuario_nombre');
+            const userId = localStorage.getItem('usuario_id');
+
+            if (!userName || !userId) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            document.getElementById('display-user-name').textContent = userName.toUpperCase();
+
+            document.getElementById('logout-trigger').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = '../index.html';
+            });
+
+            cargarDatosPerfil(userId);
+        });
+
+        async function cargarDatosPerfil(idPersona) {
+            try {
+                const response = await fetch(`../UsuarioServlet?action=obtener_perfil&id_persona=${idPersona}`);
+                const data = await response.json();
+                
+                if (data.nombre) {
+                    document.getElementById('perfil-nombre').value = data.nombre;
+                    document.getElementById('perfil-apellido').value = data.apellido || 'No registrado';
+                    document.getElementById('perfil-dni').value = data.dni || 'No registrado';
+                    document.getElementById('perfil-email').value = data.email || 'No registrado';
+                    document.getElementById('perfil-telefono').value = data.telefono || '';
+                    document.getElementById('perfil-direccion').value = data.direccion || '';
+                }
+            } catch (error) {
+                console.error("Error cargando perfil", error);
+            }
+        }
+
+        async function guardarCambiosPerfil() {
+            const userId = localStorage.getItem('usuario_id');
+            const telefono = document.getElementById('perfil-telefono').value.trim();
+            const direccion = document.getElementById('perfil-direccion').value.trim();
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'actualizar_perfil');
+            formData.append('id_persona', userId);
+            formData.append('telefono', telefono);
+            formData.append('direccion', direccion);
+
+            try {
+                Swal.fire({ title: 'Guardando...', didOpen: () => Swal.showLoading() });
+                
+                const response = await fetch('../UsuarioServlet', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    Swal.fire('¡Actualizado!', 'Tus datos de contacto han sido guardados exitosamente.', 'success');
+                } else {
+                    throw new Error();
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Hubo un problema al actualizar tu perfil.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

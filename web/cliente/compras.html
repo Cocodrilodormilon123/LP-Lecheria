@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Compras | La Lechería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/global.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-expand-lg sticky-top bg-white border-bottom border-dark border-2 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <img src="../assets/img/logotipo.png" alt="Logo" width="55" class="me-2">
+                <span class="fw-bold fs-2 tracking-tighter text-black">LA LECHERÍA</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link fw-bold text-black px-3" href="../index.html">INICIO</a></li>
+                    <li class="nav-item"><a class="nav-link fw-bold text-black px-3" href="../catalogo.html">CATÁLOGO</a></li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown">
+                        <button class="btn btn-cow dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-user me-2"></i> <span id="display-user-name">CLIENTE</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end rounded-0 border-2 border-dark shadow">
+                            <li><a class="dropdown-item py-2 fw-bold" href="perfil.html">MI PERFIL</a></li>
+                            <li><a class="dropdown-item py-2 fw-bold active bg-black text-white" href="compras.html">MIS COMPRAS</a></li>
+                            <li><hr class="dropdown-divider border-dark"></li>
+                            <li><a class="dropdown-item py-2 text-danger fw-bold" href="#" id="logout-trigger">CERRAR SESIÓN</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5" style="max-width: 900px;">
+        <h2 class="fw-bold mb-4"><i class="fa-solid fa-bag-shopping me-2"></i> MIS COMPRAS</h2>
+        
+        <div class="card border-dark rounded-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="ps-4 text-start">N° PEDIDO</th>
+                                <th>FECHA</th>
+                                <th>TIPO ENTREGA</th>
+                                <th>TOTAL</th>
+                                <th>ESTADO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-mis-compras">
+                            <tr>
+                                <td colspan="5" class="py-5 text-muted">
+                                    <i class="fa-solid fa-spinner fa-spin fs-3 mb-2"></i><br>
+                                    Buscando historial...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userName = localStorage.getItem('usuario_nombre');
+            const userId = localStorage.getItem('usuario_id');
+
+            if (!userName || !userId) {
+                window.location.href = '../auth/login.html';
+                return;
+            }
+
+            document.getElementById('display-user-name').textContent = userName.toUpperCase();
+
+            document.getElementById('logout-trigger').addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = '../index.html';
+            });
+
+            cargarMisCompras(userId);
+        });
+
+        async function cargarMisCompras(idPersona) {
+            const tbody = document.getElementById('tabla-mis-compras');
+            try {
+                const response = await fetch(`../UsuarioServlet?action=historial_cliente&id_persona=${idPersona}`);
+                const historial = await response.json();
+                
+                tbody.innerHTML = '';
+
+                if (historial.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="py-5 text-muted">
+                                <i class="fa-solid fa-box-open fs-1 mb-3"></i><br>
+                                Aún no has realizado ninguna compra.<br>
+                                <a href="../catalogo.html" class="btn btn-dark rounded-0 mt-3 fw-bold">IR AL CATÁLOGO</a>
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                historial.forEach(p => {
+                    let badgeClass = 'bg-secondary';
+                    if (p.estado === 'PENDIENTE PAGO' || p.estado === 'EN VERIFICACION') badgeClass = 'bg-warning text-dark';
+                    if (p.estado === 'PREPARANDO' || p.estado === 'EN CAMINO' || p.estado === 'LISTO RECOJO') badgeClass = 'bg-primary';
+                    if (p.estado === 'ENTREGADO') badgeClass = 'bg-success';
+                    if (p.estado === 'CANCELADO') badgeClass = 'bg-danger';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4 text-start fw-bold">#${p.id_pedido}</td>
+                            <td class="small">${p.fecha.substring(0, 16)}</td>
+                            <td><span class="badge bg-light text-dark border border-dark">${p.tipo_entrega}</span></td>
+                            <td class="fw-bold text-success">S/ ${p.total.toFixed(2)}</td>
+                            <td><span class="badge ${badgeClass}">${p.estado}</span></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="5" class="text-danger py-4">Error al conectar con el servidor</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
